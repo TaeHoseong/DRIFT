@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="DRIFT: a test-time universal adversarial patch attack that derails the denoising velocity field of flow-matching Vision-Language-Action models.">
+  <meta name="keywords" content="Adversarial Patch, Vision-Language-Action, Flow Matching, Robot Learning, Adversarial Robustness, VLA, LIBERO">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DRIFT</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro">
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css?v=2">
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+<!-- ======================= HERO: title / authors / links ======================= -->
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">
+            DRIFT: Derailing Denoising Trajectories of Flow-Matching VLAs with Adversarial Patch Attack
+          </h1>
+          <h2 class="title is-4">
+            ACCV 2026
+          </h2>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Hoseong Tae,</span>
+            <span class="author-block">Jong-Seok Lee</span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">School of Integrated Technology, Yonsei University</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- Paper / PDF -->
+              <span class="link-block">
+                <a href="#" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <!-- arXiv -->
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2608.03207" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="ai ai-arxiv"></i></span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Code -->
+              <span class="link-block">
+                <a href="https://github.com/TaeHoseong/DRIFT" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fab fa-github"></i></span>
+                  <span>Code (Coming Soon)</span>
+                </a>
+              </span>
+              <!-- View Counter -->
+              <script async
+                src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+              </script>
+              <span class="link-block"
+                    style="margin-top: 4.5px; display: inline-block;">
+                <span class="button is-normal is-rounded is-dark"
+                      style="cursor: default; pointer-events: none;">
+                  View:&nbsp;
+                  <span id="busuanzi_value_page_pv">Loading</span>
+                </span>
+
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= ABSTRACT ======================= -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Flow-matching vision-language-action (VLA) models such as
+            &pi;<sub>0</sub> generate robot actions by integrating a learned
+            denoising velocity field, and have been reported to resist
+            adversarial perturbations that readily fool autoregressive VLAs.
+            We show that this robustness is largely illusory: it stems from
+            prior attacks overlooking the multi-step denoising ODE.
+            We introduce <b>DRIFT</b>
+            (<b>D</b>enoising <b>R</b>edirection via
+            <b>I</b>nput perturbation of the
+            <b>F</b>low-matching <b>T</b>rajectory),
+            a test-time universal adversarial patch placed on the robot's
+            gripper that attacks the denoising velocity field of an
+            off-the-shelf policy.
+            Our central finding is counterintuitive: attacking
+            <em>only the first</em> denoising step is both stronger and
+            cheaper than attacking a wider window of steps, which we explain
+            through a gradient conflict unique to input-space optimization
+            and which is exactly opposite to the training-time backdoor regime.
+            On &pi;<sub>0</sub> and &pi;<sub>0.5</sub> across four LIBERO suites,
+            DRIFT breaks essentially all originally-solvable tasks with a
+            small single patch, far exceeding action- and embedding-space
+            attack baselines.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= TEASER ======================= -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <h2 class="title is-3 has-text">Overview of DRIFT</h2>
+      <h2 class="subtitle has-text-centered" style="margin-top:1rem;">
+        Adversarial patch generated by <b>DRIFT</b> attacks the <b>First</b> denoising step of the flow-matching VLA, causing a phantom grasp and derailing the rollout.
+      </h2>      
+      <img src="./static/images/teaser.png" alt="DRIFT teaser" style="max-width:100%;height:auto;">
+      
+    </div>
+  </div>
+</section>
+
+<!-- ======================= METHOD ======================= -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">Method</h2>
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        
+        <div class="content has-text-justified">
+          <p>
+            A flow-matching VLA turns an observation into an action by integrating a learned
+            velocity field <b>v</b><sub>&theta;</sub>. 
+            DRIFT optimizes an adversarial patch <b>&delta;</b> that maximizes
+            the divergence between the patched and clean velocity fields,
+          </p>
+          <p class="has-text-centered">
+            <i>L</i>(<b>
+            &delta;</b>)
+            = 
+            E<sub><b>o</b>&sim;D</sub>
+            [
+            &Vert;
+            <b>v</b><sub>&theta;</sub>(<b>A</b><sup>&tau;(0)</sup><sub>adv</sub>,
+              <b>o</b><sup>+</sup>
+            )
+            &minus;
+            <b>v</b><sub>&theta;</sub>(
+              <b>A</b><sup>&tau;(0)</sup><sub>clean</sub>,
+              <b>o</b>
+            )
+            &Vert;<sub>2</sub><sup>2</sup>
+            ]
+          </p>
+          <p>
+            concentrating the perturbation on the <b>earliest denoising step</b>, where it is effective and computationally cheapest.
+            The patch is trained with sign-PGD on a static observation pool and is applied at test time in the
+            wrist camera view &mdash; with the black-box setting.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= VIDEO GALLERY ======================= -->
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+
+      <h2 class="title is-3 has-text">Attack Rollouts on LIBERO</h2>
+
+      <p class="subtitle has-text-centered">
+        Clean (no patch) vs. DRIFT-patched wrist-camera rollout &pi;<sub>0</sub> policy.
+      </p>
+      <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <img src="./static/images/qualitative_filmstrip.png" alt="Clean success vs attacked phantom grasp" style="max-width:100%;height:auto;">
+        <p class="is-size-6 has-text-grey has-text-centered" style="margin-top:0.5rem;">
+          The attacked policy triggers an &ldquo;phantom grasp&rdquo; and never reaches the object.
+        </p>
+      </div>
+    </div>
+  </div>
+      <div id="results-carousel" class="carousel results-carousel">
+
+        <!-- Spatial -->
+        <div class="item">
+          <video controls muted loop playsinline preload="metadata">
+            <source
+              src="./static/videos/spatial_sidebyside.mp4"
+              type="video/mp4">
+          </video>
+
+          <p class="has-text-centered video-caption">
+            <strong>LIBERO-Spatial</strong><br>
+            "pick up the black bowl between the plate&hellip;"
+          </p>
+        </div>
+
+        <!-- Goal -->
+        <div class="item">
+          <video controls muted loop playsinline preload="metadata">
+            <source
+              src="./static/videos/goal_sidebyside.mp4"
+              type="video/mp4">
+          </video>
+
+          <p class="has-text-centered video-caption">
+            <strong>LIBERO-Goal</strong><br>
+            "open the middle drawer of the cabinet"
+          </p>
+        </div>
+
+        <!-- Object -->
+        <div class="item">
+          <video controls muted loop playsinline preload="metadata">
+            <source
+              src="./static/videos/object_sidebyside.mp4"
+              type="video/mp4">
+          </video>
+
+          <p class="has-text-centered video-caption">
+            <strong>LIBERO-Object</strong><br>
+            "pick up the alphabet soup and place it&hellip;"
+          </p>
+        </div>
+
+        <!-- Long -->
+        <div class="item">
+          <video controls muted loop playsinline preload="metadata">
+            <source
+              src="./static/videos/long10_sidebyside.mp4"
+              type="video/mp4">
+          </video>
+
+          <p class="has-text-centered video-caption">
+            <strong>LIBERO-Long</strong><br>
+            "pick up the book and place it in the back&hellip;"
+          </p>
+        </div>
+
+      </div>
+
+      <p class="is-size-7 has-text-grey has-text-centered"
+         style="margin-top: 1rem;">
+        Left: clean rollout succeeds. Right: with the DRIFT patch,
+        the policy fails with an early phantom grasp.
+      </p>
+
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Phantom Grasp ======================= -->
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <h2 class="title is-3">Phantom Grasp</h2>
+
+    <!-- Trajectory panels -->
+    <div class="columns is-centered is-vcentered is-variable is-2">
+
+      <div class="column">
+        <figure class="image">
+          <img src="./static/images/panel0.png"
+               alt="End-effector trajectory 1">
+        </figure>
+      </div>
+
+      <div class="column">
+        <figure class="image">
+          <img src="./static/images/panel1.png"
+               alt="End-effector trajectory 2">
+        </figure>
+      </div>
+
+      <div class="column">
+        <figure class="image">
+          <img src="./static/images/panel2.png"
+               alt="End-effector trajectory 3">
+        </figure>
+      </div>
+
+      <div class="column">
+        <figure class="image">
+          <img src="./static/images/panel3.png"
+               alt="End-effector trajectory 4">
+        </figure>
+      </div>
+
+      <div class="column">
+        <figure class="image">
+          <img src="./static/images/panel4.png"
+               alt="End-effector trajectory 5">
+        </figure>
+      </div>
+
+    </div>
+
+    <!-- Description -->
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <div class="content has-text-justified">
+          <p>
+            <strong>End-effector trajectories across five LIBERO-Spatial tasks.</strong>
+            Each clean and patched rollout starts from an identical initial state.
+            <span style="color: green;">Green</span> denotes the clean policy,
+            which successfully reaches and grasps the target, while
+            <span style="color: red;">red</span> denotes the DRIFT-patched policy,
+            which is diverted and fails to complete the grasp.
+            The hollow circle indicates the first gripper closing, revealing
+            the characteristic <strong>phantom grasp</strong> induced by DRIFT.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ======================= BibTeX ======================= -->
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@inproceedings{tae2026drift,
+  title     = {DRIFT: Derailing Denoising Trajectories of Flow-Matching VLAs with Adversarial Patch Attack},
+  author    = {Hoseong Tae and Jong-Seok Lee},
+  booktitle = {Asian Conference on Computer Vision (ACCV)},
+  year      = {2026}
+}</code></pre>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website template is from the <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a> project page.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

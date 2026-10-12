@@ -84,7 +84,7 @@ DRIFT/
 
 ```bibtex
 @inproceedings{tae2026drift,
-  title     = {DRIFT: Derailing Denoising Trajectories of Flow-Matching VLAs with Adversarial Patch Attack},
+  title     = {{DRIFT}: Derailing Denoising Trajectories of Flow-Matching VLAs with Adversarial Patch Attack},
   author    = {Hoseong Tae and Jong-Seok Lee},
   booktitle = {Asian Conference on Computer Vision (ACCV)},
   year      = {2026}

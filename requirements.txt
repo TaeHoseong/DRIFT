@@ -1,0 +1,9 @@
+# DRIFT direct dependencies.
+# NOTE: openpi (JAX pi0/pi0.5 model + openpi_client) and LIBERO (with robosuite)
+# are installed separately — see REPRODUCE.md. JAX/Flax come with the openpi env.
+numpy
+pillow
+imageio[ffmpeg]
+einops
+tqdm
+tyro
